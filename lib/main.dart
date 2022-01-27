@@ -35,8 +35,8 @@ class _MyHomePageState extends State<MyHomePage> {
     for (var jsonStr in todo) {
       // JSON形式の文字列から辞書形式のオブジェクトに変換し、各要素を取り出し
       var mapObj = jsonDecode(jsonStr);
-      var title = mapObj['title'];
-      var state = mapObj['state'];
+      var title = mapObj['title']; //this is the cardtitle
+      var state = mapObj['state']; //this is the card done state
       cards.add(TodoCardWidget(label: title, state: state));
     }
     return cards;
