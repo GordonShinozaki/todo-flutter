@@ -2,15 +2,12 @@
 
 A new Flutter project.
 
-## Getting Started
+This is a very basic Todo App that only has an add and clear feature
 
-This project is a starting point for a Flutter application.
+## How to run this 
 
-A few resources to get you started if this is your first Flutter project:
+1. Make sure Flutter is installed properly in your system. i.e. "which flutter" command should give an output 
+2. Then cd to the my_todo directly and just do "flutter run"
+3. Play around
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
