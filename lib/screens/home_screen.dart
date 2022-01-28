@@ -1,6 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
+
+String formatDate(DateTime date) => new DateFormat("yyyy MMMM d").format(date);
 
 ///////////////////////////////
 void main() => runApp(MyApp());
@@ -36,8 +40,9 @@ class _MyHomePageState extends State<MyHomePage> {
       // JSON形式の文字列から辞書形式のオブジェクトに変換し、各要素を取り出し
       var mapObj = jsonDecode(jsonStr);
       var title = mapObj['title']; //this is the cardtitle
+      var date = mapObj['date']; // i want a due date
       var state = mapObj['state']; //this is the card done state
-      cards.add(TodoCardWidget(label: title, state: state));
+      cards.add(TodoCardWidget(label: title, date: date, state: state));
     }
     return cards;
   }
@@ -90,14 +95,15 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          var label = await _showTextInputDialog(context);
-
+          var data = await _showTextInputDialog(context);
+          var label = data[0];
+          var date = data[1];
           if (label != null) {
             SharedPreferences prefs = await SharedPreferences.getInstance();
             var todo = prefs.getStringList("todo") ?? [];
 
             // 辞書型オブジェクトを生成し、JSON形式の文字列に変換して保存
-            var mapObj = {"title": label, "state": false};
+            var mapObj = {"title": label, "date": date, "state": false};
             var jsonStr = jsonEncode(mapObj);
             todo.add(jsonStr);
             await prefs.setStringList("todo", todo);
@@ -110,17 +116,45 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  final _textFieldController = TextEditingController();
+  final List<TextEditingController> _textFieldControllers =
+      List.generate(5, (i) => TextEditingController());
 
-  Future<String?> _showTextInputDialog(BuildContext context) async {
-    return showDialog(
+  Future<List<String?>> _showTextInputDialog(BuildContext context) async {
+    return await showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
             title: const Text('TODO'),
-            content: TextField(
-              controller: _textFieldController,
-              decoration: const InputDecoration(hintText: "タスクの名称を入力してください。"),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              //posisi
+              mainAxisSize: MainAxisSize.min,
+              // untuk mengatur agar widget column mengikuti widget
+              children: <Widget>[
+                TextField(
+                  controller: _textFieldControllers[0],
+                  decoration:
+                      const InputDecoration(hintText: "タスクの名称を入力してください。"),
+                ),
+                TextField(
+                  controller: _textFieldControllers[1],
+                  decoration: const InputDecoration(hintText: "締め切りを選んでください。"),
+                ),
+                TextButton(
+                    onPressed: () {
+                      DatePicker.showDatePicker(context,
+                          showTitleActions: true,
+                          minTime: DateTime(2022, 1, 1),
+                          maxTime: DateTime(2030, 6, 7), onConfirm: (date) {
+                        _textFieldControllers[1].text =
+                            formatDate(date).toString();
+                      }, currentTime: DateTime.now(), locale: LocaleType.jp);
+                    },
+                    child: Text(
+                      '日付選択',
+                      style: TextStyle(color: Colors.blue),
+                    ))
+              ],
             ),
             actions: <Widget>[
               ElevatedButton(
@@ -129,8 +163,10 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               ElevatedButton(
                 child: const Text('OK'),
-                onPressed: () =>
-                    Navigator.pop(context, _textFieldController.text),
+                onPressed: () => Navigator.pop(context, [
+                  _textFieldControllers[0].text,
+                  _textFieldControllers[1].text
+                ]),
               ),
             ],
           );
@@ -142,12 +178,14 @@ class _MyHomePageState extends State<MyHomePage> {
 class TodoCardWidget extends StatefulWidget {
   final String label;
   // 真偽値（Boolen）型のstateを外部からアクセスできるように修正
+  final String date;
   var state = false;
 
   TodoCardWidget({
     Key? key,
     required this.label,
     required this.state,
+    required this.date,
   }) : super(key: key);
 
   @override
@@ -187,6 +225,7 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
           children: [
             Checkbox(onChanged: _changeState, value: widget.state),
             Text(widget.label),
+            Text(widget.date),
           ],
         ),
       ),
