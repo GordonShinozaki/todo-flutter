@@ -21,7 +21,7 @@ class _MyHomePageState extends State<MyHomePage> {
   /// ---- ① 非同期にカードリストを生成する関数 ----
   Future<List<dynamic>> getCards() async {
     var prefs = await SharedPreferences.getInstance();
-    List<Widget> cards = [];
+    List<TodoCardWidget> cards = [];
     var todo = prefs.getStringList("todo") ?? [];
     for (var jsonStr in todo) {
       // JSON形式の文字列から辞書形式のオブジェクトに変換し、各要素を取り出し
@@ -29,9 +29,15 @@ class _MyHomePageState extends State<MyHomePage> {
       var title = mapObj['title']; //this is the cardtitle
       var date = mapObj['date']; // i want a due date
       var priority = mapObj['priority'];
+      var priorityNo = mapObj['priorityNo'];
       var state = mapObj['state']; //this is the card done state
       cards.add(TodoCardWidget(
-          label: title, date: date, priority: priority, state: state));
+        label: title,
+        date: date,
+        priority: priority,
+        priorityNo: priorityNo,
+        state: state,
+      ));
     }
     return cards;
   }
@@ -88,6 +94,11 @@ class _MyHomePageState extends State<MyHomePage> {
           var label = data[0];
           var date = data[1];
           var priority = data[2];
+          var priorityNo = priority == 'One (低い）'
+              ? 1
+              : priority == 'Two'
+                  ? 2
+                  : 3;
           if (label != null && date != null && priority != null) {
             SharedPreferences prefs = await SharedPreferences.getInstance();
             var todo = prefs.getStringList("todo") ?? [];
@@ -96,8 +107,10 @@ class _MyHomePageState extends State<MyHomePage> {
               "title": label,
               "date": date,
               "state": false,
-              "priority": priority
+              "priority": priority,
+              "priorityNo": priorityNo,
             };
+            print(mapObj);
             var jsonStr = jsonEncode(mapObj);
             todo.add(jsonStr);
             await prefs.setStringList("todo", todo);
@@ -151,7 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   value: 'One (低い）',
                   icon: const Icon(Icons.arrow_downward),
                   elevation: 16,
-                  style: const TextStyle(color: Colors.deepPurple),
+                  style: const TextStyle(color: Colors.blue),
                   onChanged: (String? newValue) {
                     setState(() {
                       _textFieldControllers[2].text = newValue!;
@@ -192,6 +205,7 @@ class TodoCardWidget extends StatefulWidget {
   // 真偽値（Boolen）型のstateを外部からアクセスできるように修正
   String date;
   String priority;
+  int priorityNo;
   var state = false;
 
   TodoCardWidget({
@@ -200,6 +214,7 @@ class TodoCardWidget extends StatefulWidget {
     required this.state,
     required this.date,
     required this.priority,
+    required this.priorityNo,
   }) : super(key: key);
 
   @override
@@ -271,8 +286,9 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
                 Chip(
                     backgroundColor: (widget.priority == 'Three（高い）')
                         ? Colors.red
-                        : Colors.blue,
-                    label: Text(widget.priority)),
+                        : widget.priority == 'Two' ? Colors.amber : Colors.blue,
+                    label: Text(widget.priority, style: TextStyle(color: Colors.white),)
+                  ),
               ],
             ),
           ],

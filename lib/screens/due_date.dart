@@ -4,6 +4,7 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:my_todo/screens/screens.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../functions/dateConverter.dart';
+import 'home_screen.dart';
 
 ///////////////////////////////
 class MyDueDate extends StatefulWidget {
@@ -18,22 +19,25 @@ class _MyDueDateState extends State<MyHomePage> {
   void initState() {
     super.initState();
   }
+
   /// ---- ① 非同期にカードリストを生成する関数 ----
   Future<List<dynamic>> getCards() async {
     var prefs = await SharedPreferences.getInstance();
-    List<Widget> cards = [];
+    List<TodoCardWidget> cards = [];
     var todo = prefs.getStringList("todo") ?? [];
-    //json sorter for priority view
     for (var jsonStr in todo) {
       // JSON形式の文字列から辞書形式のオブジェクトに変換し、各要素を取り出し
       var mapObj = jsonDecode(jsonStr);
       var title = mapObj['title']; //this is the cardtitle
       var date = mapObj['date']; // i want a due date
       var priority = mapObj['priority'];
+      var priorityNo = mapObj['priorityNo'];
       var state = mapObj['state']; //this is the card done state
-      cards.add(DueCardWidget(
-          label: title, date: date, priority: priority, state: state));
+      cards.add(TodoCardWidget(
+          label: title, date: date, priority: priority, state: state, priorityNo: priorityNo,));
     }
+    cards.sort(
+        (TodoCardWidget a, TodoCardWidget b) => b.priorityNo - a.priorityNo);
     return cards;
   }
 
@@ -42,7 +46,7 @@ class _MyDueDateState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("My TODO"),
+        title: const Text("Priority Screen!"),
         actions: [
           IconButton(
               onPressed: () {
@@ -89,6 +93,11 @@ class _MyDueDateState extends State<MyHomePage> {
           var label = data[0];
           var date = data[1];
           var priority = data[2];
+          var priorityNo = priority == 'One (低い）'
+              ? 1
+              : priority == 'Two'
+                  ? 2
+                  : 3;
           if (label != null && date != null && priority != null) {
             SharedPreferences prefs = await SharedPreferences.getInstance();
             var todo = prefs.getStringList("todo") ?? [];
@@ -97,7 +106,8 @@ class _MyDueDateState extends State<MyHomePage> {
               "title": label,
               "date": date,
               "state": false,
-              "priority": priority
+              "priority": priority,
+              "priorityNo" : priorityNo,
             };
             var jsonStr = jsonEncode(mapObj);
             todo.add(jsonStr);
@@ -152,7 +162,7 @@ class _MyDueDateState extends State<MyHomePage> {
                   value: 'One (低い）',
                   icon: const Icon(Icons.arrow_downward),
                   elevation: 16,
-                  style: const TextStyle(color: Colors.deepPurple),
+                  style: const TextStyle(color: Colors.blue),
                   onChanged: (String? newValue) {
                     setState(() {
                       _textFieldControllers[2].text = newValue!;
@@ -184,81 +194,5 @@ class _MyDueDateState extends State<MyHomePage> {
             ],
           );
         });
-  }
-}
-
-////////////////////
-class DueCardWidget extends StatefulWidget {
-  String label;
-  // 真偽値（Boolen）型のstateを外部からアクセスできるように修正
-  String date;
-  String priority;
-  var state = false;
-
-  DueCardWidget({
-    Key? key,
-    required this.label,
-    required this.state,
-    required this.date,
-    required this.priority,
-  }) : super(key: key);
-
-  @override
-  _TodoCardWidgetState createState() => _TodoCardWidgetState();
-}
-
-class _TodoCardWidgetState extends State<DueCardWidget> {
-  void _changeState(value) async {
-    setState(() {
-      widget.state = value ?? false;
-    });
-
-    // --- ③ ボタンが押されたタイミング状態を更新し保存する ---
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var todo = prefs.getStringList("todo") ?? [];
-
-    for (int i = 0; i < todo.length; i++) {
-      var mapObj = jsonDecode(todo[i]);
-      if (mapObj["title"] == widget.label) {
-        mapObj["state"] = widget.state;
-        todo[i] = jsonEncode(mapObj);
-      }
-    }
-
-    prefs.setStringList("todo", todo);
-
-    /// ------------------------------------
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.all(10),
-      child: Container(
-        padding: EdgeInsets.all(10),
-        child: Column(
-          children: [
-            Row(children: [
-              Checkbox(onChanged: _changeState, value: widget.state),
-              Text(widget.label)
-            ]),
-            Row(
-              children: [
-                Text(
-                  "Due Date:" + widget.date,
-                  textAlign: TextAlign.center,
-                ),
-                Spacer(),
-                Chip(
-                    backgroundColor: (widget.priority == 'Three（高い）')
-                        ? Colors.red
-                        : Colors.blue,
-                    label: Text(widget.priority)),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
