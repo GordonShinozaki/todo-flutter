@@ -1,28 +1,29 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:my_todo/screens/screens.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../functions/dateConverter.dart';
 
 ///////////////////////////////
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key}) : super(key: key);
+class MyDueDate extends StatefulWidget {
+  MyDueDate({Key? key}) : super(key: key);
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _MyDueDateState createState() => _MyDueDateState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyDueDateState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
   }
-
   /// ---- ① 非同期にカードリストを生成する関数 ----
   Future<List<dynamic>> getCards() async {
     var prefs = await SharedPreferences.getInstance();
     List<Widget> cards = [];
     var todo = prefs.getStringList("todo") ?? [];
+    //json sorter for priority view
     for (var jsonStr in todo) {
       // JSON形式の文字列から辞書形式のオブジェクトに変換し、各要素を取り出し
       var mapObj = jsonDecode(jsonStr);
@@ -30,7 +31,7 @@ class _MyHomePageState extends State<MyHomePage> {
       var date = mapObj['date']; // i want a due date
       var priority = mapObj['priority'];
       var state = mapObj['state']; //this is the card done state
-      cards.add(TodoCardWidget(
+      cards.add(DueCardWidget(
           label: title, date: date, priority: priority, state: state));
     }
     return cards;
@@ -187,14 +188,14 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 ////////////////////
-class TodoCardWidget extends StatefulWidget {
+class DueCardWidget extends StatefulWidget {
   String label;
   // 真偽値（Boolen）型のstateを外部からアクセスできるように修正
   String date;
   String priority;
   var state = false;
 
-  TodoCardWidget({
+  DueCardWidget({
     Key? key,
     required this.label,
     required this.state,
@@ -206,7 +207,7 @@ class TodoCardWidget extends StatefulWidget {
   _TodoCardWidgetState createState() => _TodoCardWidgetState();
 }
 
-class _TodoCardWidgetState extends State<TodoCardWidget> {
+class _TodoCardWidgetState extends State<DueCardWidget> {
   void _changeState(value) async {
     setState(() {
       widget.state = value ?? false;
@@ -237,30 +238,10 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
         padding: EdgeInsets.all(10),
         child: Column(
           children: [
-            Row(
-              children: [
-                Checkbox(onChanged: _changeState, value: widget.state),
-                Text(widget.label),
-                Spacer(),
-                IconButton(
-                    onPressed: () async {
-                      var data = await _showEditInputDialog(context);
-                      var label = data[0];
-                      var date = data[1];
-                      var priority = data[2];
-                      if (label != null && date != null) {
-                        // 辞書型オブジェクトを生成し、JSON形式の文字列に変換して保存
-                        widget.label = label;
-                        widget.date = date.toString();
-                        widget.priority = priority!;
-                        setState(() {});
-                      } else {
-                        throw ("Null input");
-                      }
-                    },
-                    icon: Icon(IconData(0xf67a, fontFamily: 'MaterialIcons')))
-              ],
-            ),
+            Row(children: [
+              Checkbox(onChanged: _changeState, value: widget.state),
+              Text(widget.label)
+            ]),
             Row(
               children: [
                 Text(
@@ -279,82 +260,5 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
         ),
       ),
     );
-  }
-
-  Future<List<String?>> _showEditInputDialog(BuildContext context) async {
-    final List<TextEditingController> _textFieldControllers =
-        List.generate(5, (i) => TextEditingController());
-    _textFieldControllers[0].text = widget.label;
-    _textFieldControllers[1].text = widget.date;
-    return await showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: const Text('Edit'),
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                TextField(
-                  controller: _textFieldControllers[0],
-                  decoration:
-                      const InputDecoration(hintText: "タスクの名称を変更してください。"),
-                ),
-                TextField(
-                  controller: _textFieldControllers[1],
-                  decoration: InputDecoration(
-                      hintText: "締め切りを選更新してください。",
-                      suffixIcon: IconButton(
-                          onPressed: () {
-                            DatePicker.showDatePicker(context,
-                                showTitleActions: true,
-                                minTime: DateTime(2022, 1, 1),
-                                maxTime: DateTime(2030, 6, 7),
-                                onConfirm: (date) {
-                              _textFieldControllers[1].text =
-                                  formatDate(date).toString();
-                            },
-                                currentTime: DateTime.now(),
-                                locale: LocaleType.jp);
-                          },
-                          icon: Icon(
-                              IconData(0xe122, fontFamily: 'MaterialIcons')))),
-                ),
-                DropdownButtonFormField<String>(
-                  value: 'One (低い）',
-                  icon: const Icon(Icons.arrow_downward),
-                  elevation: 16,
-                  style: const TextStyle(color: Colors.deepPurple),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _textFieldControllers[2].text = newValue!;
-                    });
-                  },
-                  items: <String>['One (低い）', 'Two', 'Three（高い）']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                )
-              ],
-            ),
-            actions: <Widget>[
-              ElevatedButton(
-                child: const Text("キャンセル"),
-                onPressed: () => Navigator.pop(context),
-              ),
-              ElevatedButton(
-                child: const Text('OK'),
-                onPressed: () => Navigator.pop(context, [
-                  _textFieldControllers[0].text,
-                  _textFieldControllers[1].text,
-                  _textFieldControllers[2].text,
-                ]),
-              ),
-            ],
-          );
-        });
   }
 }

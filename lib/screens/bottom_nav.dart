@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_todo/screens/due_date.dart';
 import 'package:my_todo/screens/home_screen.dart';
 export '../screens/bottom_nav.dart';
 
@@ -10,7 +11,7 @@ class BottomNavScreen extends StatefulWidget {
 class _BottomNavScreenState extends State<BottomNavScreen> {
   final List _screens = [
     MyHomePage(),
-    Scaffold(),
+    MyDueDate(),
     Scaffold(),
   ];
   int _currentIndex = 0;
@@ -20,7 +21,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+        onTap: (index) => { setState(() => _currentIndex = index)},
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
         showSelectedLabels: true,
