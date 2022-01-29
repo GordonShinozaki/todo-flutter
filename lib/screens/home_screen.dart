@@ -46,6 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     return cards;
   }
+
   /// ------------------------------------
   @override
   Widget build(BuildContext context) {
@@ -115,20 +116,17 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  final List<TextEditingController> _textFieldControllers =
-      List.generate(5, (i) => TextEditingController());
-
   Future<List<String?>> _showTextInputDialog(BuildContext context) async {
+    final List<TextEditingController> _textFieldControllers =
+        List.generate(5, (i) => TextEditingController());
     return await showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text('TODO'),
+            title: const Text('Todo'),
             content: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              //posisi
+              // crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
-              // untuk mengatur agar widget column mengikuti widget
               children: <Widget>[
                 TextField(
                   controller: _textFieldControllers[0],
@@ -137,9 +135,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 TextField(
                   controller: _textFieldControllers[1],
-                  decoration: const InputDecoration(hintText: "締め切りを選んでください。"),
-                ),
-                TextButton(
+                  decoration: InputDecoration(hintText: "締め切りを選んでください。", 
+                  suffixIcon: IconButton(
                     onPressed: () {
                       DatePicker.showDatePicker(context,
                           showTitleActions: true,
@@ -149,10 +146,10 @@ class _MyHomePageState extends State<MyHomePage> {
                             formatDate(date).toString();
                       }, currentTime: DateTime.now(), locale: LocaleType.jp);
                     },
-                    child: Text(
-                      '日付選択',
-                      style: TextStyle(color: Colors.blue),
-                    ))
+                    icon: Icon(IconData(0xe122, fontFamily: 'MaterialIcons'))
+                )),
+                ),
+
               ],
             ),
             actions: <Widget>[
@@ -175,9 +172,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
 ////////////////////
 class TodoCardWidget extends StatefulWidget {
-  final String label;
+  String label;
   // 真偽値（Boolen）型のstateを外部からアクセスできるように修正
-  final String date;
+  String date;
   var state = false;
 
   TodoCardWidget({
@@ -213,7 +210,6 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
 
     /// ------------------------------------
   }
-static const IconData create_rounded = IconData(0xf67a, fontFamily: 'MaterialIcons');
 
   @override
   Widget build(BuildContext context) {
@@ -222,25 +218,94 @@ static const IconData create_rounded = IconData(0xf67a, fontFamily: 'MaterialIco
       child: Container(
         padding: EdgeInsets.all(10),
         child: Column(
-          children : [
-            Row (
-            children: [
-              Checkbox(onChanged: _changeState, value: widget.state),
-              Text(widget.label),
-              Spacer(),
-              Icon(IconData(0xf67a, fontFamily: 'MaterialIcons')),
-            ],
-          ),
-            Row (
-            children: [
-              Text("Due Date:" + widget.date, textAlign: TextAlign.center,),
-              Spacer(),
-              Chip(backgroundColor: Colors.blue, label: const Text('high')),
-            ],
-          ),
+          children: [
+            Row(
+              children: [
+                Checkbox(onChanged: _changeState, value: widget.state),
+                Text(widget.label),
+                Spacer(),
+                IconButton(
+                    onPressed: () async {
+                      var data = await _showEditInputDialog(context);
+                      var label = data[0];
+                      var date = data[1];
+                      if (label != null && date != null) {
+                        // 辞書型オブジェクトを生成し、JSON形式の文字列に変換して保存
+                        widget.label = label;
+                        widget.date = date.toString();
+                        setState(() {});
+                      } else {
+                        throw ("Null input");
+                      }
+                    },
+                    icon: Icon(IconData(0xf67a, fontFamily: 'MaterialIcons')))
+              ],
+            ),
+            Row(
+              children: [
+                Text(
+                  "Due Date:" + widget.date,
+                  textAlign: TextAlign.center,
+                ),
+                Spacer(),
+                Chip(backgroundColor: Colors.blue, label: const Text('high')),
+              ],
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<List<String?>> _showEditInputDialog(BuildContext context) async {
+    final List<TextEditingController> _textFieldControllers =
+        List.generate(5, (i) => TextEditingController());
+    return await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Edit'),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                TextField(
+                  controller: _textFieldControllers[0],
+                  decoration:
+                      const InputDecoration(hintText: "タスクの名称を変更してください。"),
+                ),
+                TextField(
+                  controller: _textFieldControllers[1],
+                  decoration: InputDecoration(hintText: "締め切りを選更新してください。", 
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      DatePicker.showDatePicker(context,
+                          showTitleActions: true,
+                          minTime: DateTime(2022, 1, 1),
+                          maxTime: DateTime(2030, 6, 7), onConfirm: (date) {
+                        _textFieldControllers[1].text =
+                            formatDate(date).toString();
+                      }, currentTime: DateTime.now(), locale: LocaleType.jp);
+                    },
+                    icon: Icon(IconData(0xe122, fontFamily: 'MaterialIcons'))
+                )),
+                ),
+              ],
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                child: const Text("キャンセル"),
+                onPressed: () => Navigator.pop(context),
+              ),
+              ElevatedButton(
+                child: const Text('OK'),
+                onPressed: () => Navigator.pop(context, [
+                  _textFieldControllers[0].text,
+                  _textFieldControllers[1].text
+                ]),
+              ),
+            ],
+          );
+        });
   }
 }
