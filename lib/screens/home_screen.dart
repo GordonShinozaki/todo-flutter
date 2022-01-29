@@ -41,8 +41,10 @@ class _MyHomePageState extends State<MyHomePage> {
       var mapObj = jsonDecode(jsonStr);
       var title = mapObj['title']; //this is the cardtitle
       var date = mapObj['date']; // i want a due date
+      var priority = mapObj['priority'];
       var state = mapObj['state']; //this is the card done state
-      cards.add(TodoCardWidget(label: title, date: date, state: state));
+      cards.add(TodoCardWidget(
+          label: title, date: date, priority: priority, state: state));
     }
     return cards;
   }
@@ -98,12 +100,17 @@ class _MyHomePageState extends State<MyHomePage> {
           var data = await _showTextInputDialog(context);
           var label = data[0];
           var date = data[1];
-          if (label != null) {
+          var priority = data[2];
+          if (label != null && date != null && priority != null) {
             SharedPreferences prefs = await SharedPreferences.getInstance();
             var todo = prefs.getStringList("todo") ?? [];
-
             // 辞書型オブジェクトを生成し、JSON形式の文字列に変換して保存
-            var mapObj = {"title": label, "date": date, "state": false};
+            var mapObj = {
+              "title": label,
+              "date": date,
+              "state": false,
+              "priority": priority
+            };
             var jsonStr = jsonEncode(mapObj);
             todo.add(jsonStr);
             await prefs.setStringList("todo", todo);
@@ -118,7 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<List<String?>> _showTextInputDialog(BuildContext context) async {
     final List<TextEditingController> _textFieldControllers =
-        List.generate(5, (i) => TextEditingController());
+        List.generate(3, (i) => TextEditingController());
     return await showDialog(
         context: context,
         builder: (context) {
@@ -135,21 +142,42 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 TextField(
                   controller: _textFieldControllers[1],
-                  decoration: InputDecoration(hintText: "締め切りを選んでください。", 
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      DatePicker.showDatePicker(context,
-                          showTitleActions: true,
-                          minTime: DateTime(2022, 1, 1),
-                          maxTime: DateTime(2030, 6, 7), onConfirm: (date) {
-                        _textFieldControllers[1].text =
-                            formatDate(date).toString();
-                      }, currentTime: DateTime.now(), locale: LocaleType.jp);
-                    },
-                    icon: Icon(IconData(0xe122, fontFamily: 'MaterialIcons'))
-                )),
+                  decoration: InputDecoration(
+                      hintText: "締め切りを選んでください。",
+                      suffixIcon: IconButton(
+                          onPressed: () {
+                            DatePicker.showDatePicker(context,
+                                showTitleActions: true,
+                                minTime: DateTime(2022, 1, 1),
+                                maxTime: DateTime(2030, 6, 7),
+                                onConfirm: (date) {
+                              _textFieldControllers[1].text =
+                                  formatDate(date).toString();
+                            },
+                                currentTime: DateTime.now(),
+                                locale: LocaleType.jp);
+                          },
+                          icon: Icon(
+                              IconData(0xe122, fontFamily: 'MaterialIcons')))),
                 ),
-
+                DropdownButtonFormField<String>(
+                  value: 'One (低い）',
+                  icon: const Icon(Icons.arrow_downward),
+                  elevation: 16,
+                  style: const TextStyle(color: Colors.deepPurple),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _textFieldControllers[2].text = newValue!;
+                    });
+                  },
+                  items: <String>['One (低い）', 'Two', 'Three（高い）']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                )
               ],
             ),
             actions: <Widget>[
@@ -161,7 +189,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: const Text('OK'),
                 onPressed: () => Navigator.pop(context, [
                   _textFieldControllers[0].text,
-                  _textFieldControllers[1].text
+                  _textFieldControllers[1].text,
+                  _textFieldControllers[2].text,
                 ]),
               ),
             ],
@@ -175,6 +204,7 @@ class TodoCardWidget extends StatefulWidget {
   String label;
   // 真偽値（Boolen）型のstateを外部からアクセスできるように修正
   String date;
+  String priority;
   var state = false;
 
   TodoCardWidget({
@@ -182,6 +212,7 @@ class TodoCardWidget extends StatefulWidget {
     required this.label,
     required this.state,
     required this.date,
+    required this.priority,
   }) : super(key: key);
 
   @override
@@ -229,10 +260,12 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
                       var data = await _showEditInputDialog(context);
                       var label = data[0];
                       var date = data[1];
+                      var priority = data[2];
                       if (label != null && date != null) {
                         // 辞書型オブジェクトを生成し、JSON形式の文字列に変換して保存
                         widget.label = label;
                         widget.date = date.toString();
+                        widget.priority = priority!;
                         setState(() {});
                       } else {
                         throw ("Null input");
@@ -248,7 +281,11 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
                   textAlign: TextAlign.center,
                 ),
                 Spacer(),
-                Chip(backgroundColor: Colors.blue, label: const Text('high')),
+                Chip(
+                    backgroundColor: (widget.priority == 'Three（高い）')
+                        ? Colors.red
+                        : Colors.blue,
+                    label: Text(widget.priority)),
               ],
             ),
           ],
@@ -260,6 +297,8 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
   Future<List<String?>> _showEditInputDialog(BuildContext context) async {
     final List<TextEditingController> _textFieldControllers =
         List.generate(5, (i) => TextEditingController());
+    _textFieldControllers[0].text = widget.label;
+    _textFieldControllers[1].text = widget.date;
     return await showDialog(
         context: context,
         builder: (context) {
@@ -276,20 +315,42 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
                 ),
                 TextField(
                   controller: _textFieldControllers[1],
-                  decoration: InputDecoration(hintText: "締め切りを選更新してください。", 
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      DatePicker.showDatePicker(context,
-                          showTitleActions: true,
-                          minTime: DateTime(2022, 1, 1),
-                          maxTime: DateTime(2030, 6, 7), onConfirm: (date) {
-                        _textFieldControllers[1].text =
-                            formatDate(date).toString();
-                      }, currentTime: DateTime.now(), locale: LocaleType.jp);
-                    },
-                    icon: Icon(IconData(0xe122, fontFamily: 'MaterialIcons'))
-                )),
+                  decoration: InputDecoration(
+                      hintText: "締め切りを選更新してください。",
+                      suffixIcon: IconButton(
+                          onPressed: () {
+                            DatePicker.showDatePicker(context,
+                                showTitleActions: true,
+                                minTime: DateTime(2022, 1, 1),
+                                maxTime: DateTime(2030, 6, 7),
+                                onConfirm: (date) {
+                              _textFieldControllers[1].text =
+                                  formatDate(date).toString();
+                            },
+                                currentTime: DateTime.now(),
+                                locale: LocaleType.jp);
+                          },
+                          icon: Icon(
+                              IconData(0xe122, fontFamily: 'MaterialIcons')))),
                 ),
+                DropdownButtonFormField<String>(
+                  value: 'One (低い）',
+                  icon: const Icon(Icons.arrow_downward),
+                  elevation: 16,
+                  style: const TextStyle(color: Colors.deepPurple),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _textFieldControllers[2].text = newValue!;
+                    });
+                  },
+                  items: <String>['One (低い）', 'Two', 'Three（高い）']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                )
               ],
             ),
             actions: <Widget>[
@@ -301,7 +362,8 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
                 child: const Text('OK'),
                 onPressed: () => Navigator.pop(context, [
                   _textFieldControllers[0].text,
-                  _textFieldControllers[1].text
+                  _textFieldControllers[1].text,
+                  _textFieldControllers[2].text,
                 ]),
               ),
             ],
