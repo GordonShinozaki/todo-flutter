@@ -46,7 +46,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     return cards;
   }
-
   /// ------------------------------------
   @override
   Widget build(BuildContext context) {
@@ -214,6 +213,7 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
 
     /// ------------------------------------
   }
+static const IconData create_rounded = IconData(0xf67a, fontFamily: 'MaterialIcons');
 
   @override
   Widget build(BuildContext context) {
@@ -221,11 +221,23 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
       margin: EdgeInsets.all(10),
       child: Container(
         padding: EdgeInsets.all(10),
-        child: Row(
-          children: [
-            Checkbox(onChanged: _changeState, value: widget.state),
-            Text(widget.label),
-            Text(widget.date),
+        child: Column(
+          children : [
+            Row (
+            children: [
+              Checkbox(onChanged: _changeState, value: widget.state),
+              Text(widget.label),
+              Spacer(),
+              Icon(IconData(0xf67a, fontFamily: 'MaterialIcons')),
+            ],
+          ),
+            Row (
+            children: [
+              Text("Due Date:" + widget.date, textAlign: TextAlign.center,),
+              Spacer(),
+              Chip(backgroundColor: Colors.blue, label: const Text('high')),
+            ],
+          ),
           ],
         ),
       ),
