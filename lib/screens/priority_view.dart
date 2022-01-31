@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:my_todo/functions/hasher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../functions/date_converter.dart';
 import '../components/todocard.dart';
@@ -31,6 +32,7 @@ class _MyPriorityState extends State<MyPriority> {
       var date = mapObj['date']; // i want a due date
       var priority = mapObj['priority'];
       var priorityNo = mapObj['priorityNo'];
+      var hash = mapObj['hash'];
       var state = mapObj['state']; //this is the card done state
       if (!state) {
         cards.add(TodoCardWidget(
@@ -39,6 +41,7 @@ class _MyPriorityState extends State<MyPriority> {
           priority: priority,
           state: state,
           priorityNo: priorityNo,
+          hash: hash,
         ));
       }
     }
@@ -117,6 +120,7 @@ class _MyPriorityState extends State<MyPriority> {
               "state": false,
               "priority": priority,
               "priorityNo": priorityNo,
+              "hash": getRandString(10),
             };
             var jsonStr = jsonEncode(mapObj);
             todo.add(jsonStr);

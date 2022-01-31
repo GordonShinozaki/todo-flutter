@@ -5,12 +5,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class TodoCardWidget extends StatefulWidget {
-  String label;
+  String? label;
   // 真偽値（Boolen）型のstateを外部からアクセスできるように修正
   String date;
   String priority;
   int priorityNo;
   String doneDate;
+  String hash;
   var state = false;
 
   TodoCardWidget(
@@ -20,7 +21,8 @@ class TodoCardWidget extends StatefulWidget {
       required this.date,
       required this.priority,
       required this.priorityNo,
-      this.doneDate = ''})
+      this.doneDate = '',
+      required this.hash,})
       : super(key: key);
 
   @override
@@ -47,10 +49,10 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
 
     for (int i = 0; i < todo.length; i++) {
       var mapObj = jsonDecode(todo[i]);
-      if (mapObj["title"] == widget.label) {
+      if (mapObj["hash"] == widget.hash) {
         mapObj["state"] = widget.state;
         mapObj["date"] = widget.date;
-        mapObj["label"] = widget.label;
+        mapObj["title"] = widget.label;
         mapObj["priority"] = widget.priority;
         mapObj["doneDate"] = widget.doneDate;
         todo[i] = jsonEncode(mapObj);
@@ -73,8 +75,13 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
             Row(
               children: [
                 Checkbox(onChanged: _changeState, value: widget.state),
-                Text(widget.label),
+                Text(widget.label.toString()),
                 const Spacer(),
+                IconButton(
+                    onPressed: () {
+                      _changeState(widget.state, label: null);
+                    },
+                    icon: const Icon(Icons.delete)),
                 IconButton(
                     onPressed: () async {
                       var data = await _showEditInputDialog(context);
@@ -93,9 +100,9 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
             Row(
               children: [
                 Text(
-                  (widget.state) ?
-                  "Done Date: " + widget.date
-                  : "Due Date: " + widget.date,
+                  (widget.state)
+                      ? "Done Date: " + widget.date
+                      : "Due Date: " + widget.date,
                   textAlign: TextAlign.center,
                 ),
                 const Spacer(),
@@ -120,7 +127,7 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
   Future<List<String?>> _showEditInputDialog(BuildContext context) async {
     final List<TextEditingController> _textFieldControllers =
         List.generate(5, (i) => TextEditingController());
-    _textFieldControllers[0].text = widget.label;
+    _textFieldControllers[0].text = widget.label.toString();
     _textFieldControllers[1].text = widget.date;
     _textFieldControllers[2].text = widget.priority;
     return await showDialog(
