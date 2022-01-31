@@ -224,11 +224,16 @@ class TodoCardWidget extends StatefulWidget {
 }
 
 class _TodoCardWidgetState extends State<TodoCardWidget> {
-  void _changeState(value) async {
+  void _changeState(value,
+      {String? label, String? date, String? priority}) async {
     setState(() {
       widget.state = value ?? false;
+      if (label != null && date != null && priority != null) {
+        widget.label = label;
+        widget.date = date;
+        widget.priority = priority;
+      }
     });
-
     // --- ③ ボタンが押されたタイミング状態を更新し保存する ---
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var todo = prefs.getStringList("todo") ?? [];
@@ -237,6 +242,9 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
       var mapObj = jsonDecode(todo[i]);
       if (mapObj["title"] == widget.label) {
         mapObj["state"] = widget.state;
+        mapObj["date"] = widget.date;
+        mapObj["label"] = widget.label;
+        mapObj["priority"] = widget.priority;
         todo[i] = jsonEncode(mapObj);
       }
     }
@@ -265,24 +273,8 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
                       var label = data[0];
                       var date = data[1];
                       var priority = data[2];
-                      SharedPreferences.getInstance().then((prefs) {
-                        var todo = prefs.getStringList("todo") ?? [];
-                        if (label != null && date != null) {
-                          var mapObj = {
-                            "title": label,
-                            "date": date,
-                            "state": false,
-                            "priority": priority,
-                            "priorityNo": 2,
-                          };
-                          var jsonStr = jsonEncode(mapObj);
-                          todo.add(jsonStr);
-                          prefs.setStringList("todo", todo);
-                          setState(() {});
-                        } else {
-                          throw ("Null input");
-                        }
-                      });
+                      _changeState(widget.state, label: label.toString(),
+                          date: date.toString(), priority: priority.toString());
                     },
                     icon: const Icon(
                         IconData(0xf67a, fontFamily: 'MaterialIcons')))
@@ -291,7 +283,7 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
             Row(
               children: [
                 Text(
-                  "Due Date:" + widget.date,
+                  "Due Date: " + widget.date,
                   textAlign: TextAlign.center,
                 ),
                 const Spacer(),
@@ -318,6 +310,7 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
         List.generate(5, (i) => TextEditingController());
     _textFieldControllers[0].text = widget.label;
     _textFieldControllers[1].text = widget.date;
+    _textFieldControllers[2].text = widget.priority;
     return await showDialog(
         context: context,
         builder: (context) {
@@ -378,13 +371,14 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
                 onPressed: () => Navigator.pop(context),
               ),
               ElevatedButton(
-                child: const Text('OK'),
-                onPressed: () => Navigator.pop(context, [
-                  _textFieldControllers[0].text,
-                  _textFieldControllers[1].text,
-                  _textFieldControllers[2].text,
-                ]),
-              ),
+                  child: const Text('OK'),
+                  onPressed: () => {
+                        Navigator.pop(context, [
+                          _textFieldControllers[0].text,
+                          _textFieldControllers[1].text,
+                          _textFieldControllers[2].text,
+                        ])
+                      }),
             ],
           );
         });
