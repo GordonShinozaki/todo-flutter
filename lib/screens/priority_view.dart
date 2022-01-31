@@ -14,7 +14,7 @@ class MyPriority extends StatefulWidget {
   _MyPriorityState createState() => _MyPriorityState();
 }
 
-class _MyPriorityState extends State<MyPriority> {
+class _MyPriorityState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
@@ -34,7 +34,12 @@ class _MyPriorityState extends State<MyPriority> {
       var priorityNo = mapObj['priorityNo'];
       var state = mapObj['state']; //this is the card done state
       cards.add(TodoCardWidget(
-          label: title, date: date, priority: priority, state: state, priorityNo: priorityNo,));
+        label: title,
+        date: date,
+        priority: priority,
+        state: state,
+        priorityNo: priorityNo,
+      ));
     }
     cards.sort(
         (TodoCardWidget a, TodoCardWidget b) => b.priorityNo - a.priorityNo);
@@ -110,7 +115,7 @@ class _MyPriorityState extends State<MyPriority> {
               "date": date,
               "state": false,
               "priority": priority,
-              "priorityNo" : priorityNo,
+              "priorityNo": priorityNo,
             };
             var jsonStr = jsonEncode(mapObj);
             todo.add(jsonStr);
