@@ -14,6 +14,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
     const MyHomePage(),
     const MyPriority(),
     const MyDue(),
+    const Scaffold(),
   ];
   int _currentIndex = 0;
   @override
@@ -29,12 +30,12 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         showUnselectedLabels: true,
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.grey,
-        items: [Icons.home, Icons.insert_chart, Icons.event_note]
+        items: [Icons.home, Icons.insert_chart, Icons.event_note, Icons.done_all]
             .asMap()
             .map((key, value) => MapEntry(
                   key,
                   BottomNavigationBarItem(
-                    label: const Text('').toString(),
+                    label: (key == 0) ? 'Home' : (key == 1) ? 'Priority' : (key == 2) ? 'Due Date' : 'Done',
                     icon: Container(
                       padding: const EdgeInsets.symmetric(
                           vertical: 6.0, horizontal: 16.0),

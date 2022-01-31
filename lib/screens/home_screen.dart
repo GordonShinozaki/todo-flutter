@@ -73,6 +73,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 // getCards()メソッドの処理が完了すると、ここが呼ばれる。
                 if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
+                } else if (snapshot.data!.isEmpty) {
+                  return const Text("Please add a todo!",
+                      style: TextStyle(color: Colors.grey));
                 } else {
                   return ListView.builder(
                       // リストの中身は、snapshot.dataの中に保存されているので、
@@ -262,17 +265,27 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
                       var label = data[0];
                       var date = data[1];
                       var priority = data[2];
-                      if (label != null && date != null) {
-                        // 辞書型オブジェクトを生成し、JSON形式の文字列に変換して保存
-                        widget.label = label;
-                        widget.date = date.toString();
-                        widget.priority = priority!;
-                        setState(() {});
-                      } else {
-                        throw ("Null input");
-                      }
+                      SharedPreferences.getInstance().then((prefs) {
+                        var todo = prefs.getStringList("todo") ?? [];
+                        if (label != null && date != null) {
+                          var mapObj = {
+                            "title": label,
+                            "date": date,
+                            "state": false,
+                            "priority": priority,
+                            "priorityNo": 2,
+                          };
+                          var jsonStr = jsonEncode(mapObj);
+                          todo.add(jsonStr);
+                          prefs.setStringList("todo", todo);
+                          setState(() {});
+                        } else {
+                          throw ("Null input");
+                        }
+                      });
                     },
-                    icon: const Icon(IconData(0xf67a, fontFamily: 'MaterialIcons')))
+                    icon: const Icon(
+                        IconData(0xf67a, fontFamily: 'MaterialIcons')))
               ],
             ),
             Row(
@@ -285,9 +298,13 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
                 Chip(
                     backgroundColor: (widget.priority == 'Three（高い）')
                         ? Colors.red
-                        : widget.priority == 'Two' ? Colors.amber : Colors.blue,
-                    label: Text(widget.priority, style: const TextStyle(color: Colors.white),)
-                  ),
+                        : widget.priority == 'Two'
+                            ? Colors.amber
+                            : Colors.blue,
+                    label: Text(
+                      widget.priority,
+                      style: const TextStyle(color: Colors.white),
+                    )),
               ],
             ),
           ],

@@ -72,6 +72,9 @@ class _MyPriorityState extends State<MyPriority> {
                 // getCards()メソッドの処理が完了すると、ここが呼ばれる。
                 if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
+                } else if (snapshot.data!.isEmpty) {
+                  return const Text("Please add a todo!",
+                      style: TextStyle(color: Colors.grey));
                 } else {
                   return ListView.builder(
                       // リストの中身は、snapshot.dataの中に保存されているので、

@@ -49,7 +49,9 @@ class _MyDueState extends State<MyDue> {
         .where((i) => calculateDifference(restoreDate.parse(i.date)) == 0)
         .toList();
     thisWeekCards = cards
-        .where((i) => calculateDifference(restoreDate.parse(i.date)) < 7 && calculateDifference(restoreDate.parse(i.date)) > 0)
+        .where((i) =>
+            calculateDifference(restoreDate.parse(i.date)) < 7 &&
+            calculateDifference(restoreDate.parse(i.date)) > 0)
         .toList();
     return [cards, todayCards, thisWeekCards];
   }
@@ -85,34 +87,36 @@ class _MyDueState extends State<MyDue> {
                 // getCards()メソッドの処理が完了すると、ここが呼ばれる。
                 if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
+                } else if (snapshot.data![0].isEmpty) {
+                  return const Text("Please add a todo!",
+                      style: TextStyle(color: Colors.grey));
                 } else {
                   return Container(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Column(
-                    children: [
-                      const Text("Today", style: TextStyle(color: Colors.grey)),
-                      ListView.builder(
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      // リストの中身は、snapshot.dataの中に保存されているので、
-                      // 取り出して活用する
-                      itemCount: snapshot.data![1]!.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return snapshot.data![1][index];
-                      }),
-                      const Text("This Week", style: TextStyle(color: Colors.grey)),
-                      ListView.builder(
-                      // リストの中身は、snapshot.dataの中に保存されているので、
-                      // 取り出して活用するss
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      itemCount: snapshot.data![2]!.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return snapshot.data![2][index];
-                      }),
-                      ]
-                    )
-                  );
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(children: [
+                        const Text("Today",
+                            style: TextStyle(color: Colors.grey)),
+                        ListView.builder(
+                            scrollDirection: Axis.vertical,
+                            shrinkWrap: true,
+                            // リストの中身は、snapshot.dataの中に保存されているので、
+                            // 取り出して活用する
+                            itemCount: snapshot.data![1]!.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return snapshot.data![1][index];
+                            }),
+                        const Text("This Week",
+                            style: TextStyle(color: Colors.grey)),
+                        ListView.builder(
+                            // リストの中身は、snapshot.dataの中に保存されているので、
+                            // 取り出して活用するss
+                            scrollDirection: Axis.vertical,
+                            shrinkWrap: true,
+                            itemCount: snapshot.data![2]!.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return snapshot.data![2][index];
+                            }),
+                      ]));
                 }
             }
           },
