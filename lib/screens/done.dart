@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'package:my_todo/screens/screens.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../functions/date_converter.dart';
-import 'home_screen.dart';
+import '../components/todocard.dart';
 
 ///////////////////////////////
 class MyDone extends StatefulWidget {
@@ -15,7 +14,6 @@ class MyDone extends StatefulWidget {
 }
 
 class _MyDoneState extends State<MyDone> {
-
   /// ---- ① 非同期にカードリストを生成する関数 ----
   Future<List<dynamic>> getCards() async {
     var prefs = await SharedPreferences.getInstance();
@@ -37,6 +35,8 @@ class _MyDoneState extends State<MyDone> {
           state: state,
           priorityNo: priorityNo,
         ));
+      } else {
+        continue;
       }
     }
     List<TodoCardWidget> doneCards = cards.where((i) => i.state).toList();
