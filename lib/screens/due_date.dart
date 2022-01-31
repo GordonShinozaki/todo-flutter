@@ -14,7 +14,7 @@ class MyDueDate extends StatefulWidget {
   _MyDueDateState createState() => _MyDueDateState();
 }
 
-class _MyDueDateState extends State<MyHomePage> {
+class _MyDueDateState extends State<MyDueDate> {
   @override
   void initState() {
     super.initState();
