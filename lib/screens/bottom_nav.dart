@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:my_todo/screens/screens.dart';
+import 'package:my_todo/screens/priorityView.dart';
+import 'package:my_todo/screens/home_screen.dart';
 export '../screens/bottom_nav.dart';
 
 class BottomNavScreen extends StatefulWidget {
-  BottomNavScreen({Key? key}) : super(key: key);
-
   @override
   _BottomNavScreenState createState() => _BottomNavScreenState();
 }
@@ -13,7 +12,6 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
   final List _screens = [
     MyHomePage(),
     MyPriority(),
-    MyDue(),
     Scaffold(),
   ];
   int _currentIndex = 0;
@@ -35,7 +33,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
             .map((key, value) => MapEntry(
                   key,
                   BottomNavigationBarItem(
-                    label: (key == 0) ? 'Home' : (key == 1) ? 'Priority' : (key == 2) ? 'Due Dates' : 'Done',
+                    label: Text('').toString(),
                     icon: Container(
                       padding: const EdgeInsets.symmetric(
                           vertical: 6.0, horizontal: 16.0),

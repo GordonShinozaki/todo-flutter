@@ -3,18 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:my_todo/screens/screens.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../functions/date_converter.dart';
+import '../functions/dateConverter.dart';
 import 'home_screen.dart';
 
 ///////////////////////////////
-class MyPriority extends StatefulWidget {
-  MyPriority({Key? key}) : super(key: key);
+class MyDue extends StatefulWidget {
+  MyDue({Key? key}) : super(key: key);
 
   @override
-  _MyPriorityState createState() => _MyPriorityState();
+  _MyDueState createState() => _MyDueState();
 }
 
-class _MyPriorityState extends State<MyPriority> {
+class _MyDueState extends State<MyDue> {
   @override
   void initState() {
     super.initState();
@@ -37,7 +37,8 @@ class _MyPriorityState extends State<MyPriority> {
           label: title, date: date, priority: priority, state: state, priorityNo: priorityNo,));
     }
     cards.sort(
-        (TodoCardWidget a, TodoCardWidget b) => b.priorityNo - a.priorityNo);
+        (TodoCardWidget a, TodoCardWidget b) => DateTime.parse(a.date).compareTo(DateTime.parse(b.date))
+        );
     return cards;
   }
 
@@ -72,10 +73,7 @@ class _MyPriorityState extends State<MyPriority> {
                 // getCards()メソッドの処理が完了すると、ここが呼ばれる。
                 if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
-                } if (snapshot.data!.isEmpty) {
-                    return const Text("Please Add a To-do!",
-                        style: TextStyle(color: Colors.grey));
-                  } else {
+                } else {
                   return ListView.builder(
                       // リストの中身は、snapshot.dataの中に保存されているので、
                       // 取り出して活用する
@@ -158,7 +156,7 @@ class _MyPriorityState extends State<MyPriority> {
                                 currentTime: DateTime.now(),
                                 locale: LocaleType.jp);
                           },
-                          icon: const Icon(
+                          icon: Icon(
                               IconData(0xe122, fontFamily: 'MaterialIcons')))),
                 ),
                 DropdownButtonFormField<String>(
