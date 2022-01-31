@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:my_todo/screens/screens.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../functions/dateConverter.dart';
+import '../functions/date_converter.dart';
 import 'home_screen.dart';
 
 ///////////////////////////////
 class MyPriority extends StatefulWidget {
-  MyPriority({Key? key}) : super(key: key);
+  const MyPriority({Key? key}) : super(key: key);
 
   @override
   _MyPriorityState createState() => _MyPriorityState();
@@ -155,7 +155,7 @@ class _MyPriorityState extends State<MyPriority> {
                                 currentTime: DateTime.now(),
                                 locale: LocaleType.jp);
                           },
-                          icon: Icon(
+                          icon: const Icon(
                               IconData(0xe122, fontFamily: 'MaterialIcons')))),
                 ),
                 DropdownButtonFormField<String>(

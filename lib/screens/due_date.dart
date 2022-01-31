@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:my_todo/screens/screens.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../functions/dateConverter.dart';
+import '../functions/date_converter.dart';
 import 'home_screen.dart';
 
 ///////////////////////////////
 class MyDue extends StatefulWidget {
-  MyDue({Key? key}) : super(key: key);
+  const MyDue({Key? key}) : super(key: key);
 
   @override
   _MyDueState createState() => _MyDueState();
@@ -24,6 +24,8 @@ class _MyDueState extends State<MyDue> {
   Future<List<dynamic>> getCards() async {
     var prefs = await SharedPreferences.getInstance();
     List<TodoCardWidget> cards = [];
+    List<TodoCardWidget> todayCards = [];
+    List<TodoCardWidget> thisWeekCards = [];
     var todo = prefs.getStringList("todo") ?? [];
     for (var jsonStr in todo) {
       // JSON形式の文字列から辞書形式のオブジェクトに変換し、各要素を取り出し
@@ -34,12 +36,22 @@ class _MyDueState extends State<MyDue> {
       var priorityNo = mapObj['priorityNo'];
       var state = mapObj['state']; //this is the card done state
       cards.add(TodoCardWidget(
-          label: title, date: date, priority: priority, state: state, priorityNo: priorityNo,));
+        label: title,
+        date: date,
+        priority: priority,
+        state: state,
+        priorityNo: priorityNo,
+      ));
     }
-    cards.sort(
-        (TodoCardWidget a, TodoCardWidget b) => DateTime.parse(a.date).compareTo(DateTime.parse(b.date))
-        );
-    return cards;
+    cards.sort((TodoCardWidget a, TodoCardWidget b) =>
+        restoreDate.parse(a.date).compareTo(restoreDate.parse(b.date)));
+    todayCards = cards
+        .where((i) => calculateDifference(restoreDate.parse(i.date)) == 0)
+        .toList();
+    thisWeekCards = cards
+        .where((i) => calculateDifference(restoreDate.parse(i.date)) < 7 && calculateDifference(restoreDate.parse(i.date)) > 0)
+        .toList();
+    return [cards, todayCards, thisWeekCards];
   }
 
   /// ------------------------------------
@@ -47,7 +59,7 @@ class _MyDueState extends State<MyDue> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Priority Screen!"),
+        title: const Text("What's Due Soon?"),
         actions: [
           IconButton(
               onPressed: () {
@@ -74,13 +86,33 @@ class _MyDueState extends State<MyDue> {
                 if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
-                  return ListView.builder(
+                  return Container(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                    children: [
+                      const Text("Today", style: TextStyle(color: Colors.grey)),
+                      ListView.builder(
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
                       // リストの中身は、snapshot.dataの中に保存されているので、
                       // 取り出して活用する
-                      itemCount: snapshot.data!.length,
+                      itemCount: snapshot.data![1]!.length,
                       itemBuilder: (BuildContext context, int index) {
-                        return snapshot.data![index];
-                      });
+                        return snapshot.data![1][index];
+                      }),
+                      const Text("This Week", style: TextStyle(color: Colors.grey)),
+                      ListView.builder(
+                      // リストの中身は、snapshot.dataの中に保存されているので、
+                      // 取り出して活用するss
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      itemCount: snapshot.data![2]!.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return snapshot.data![2][index];
+                      }),
+                      ]
+                    )
+                  );
                 }
             }
           },
@@ -108,7 +140,7 @@ class _MyDueState extends State<MyDue> {
               "date": date,
               "state": false,
               "priority": priority,
-              "priorityNo" : priorityNo,
+              "priorityNo": priorityNo,
             };
             var jsonStr = jsonEncode(mapObj);
             todo.add(jsonStr);
@@ -156,7 +188,7 @@ class _MyDueState extends State<MyDue> {
                                 currentTime: DateTime.now(),
                                 locale: LocaleType.jp);
                           },
-                          icon: Icon(
+                          icon: const Icon(
                               IconData(0xe122, fontFamily: 'MaterialIcons')))),
                 ),
                 DropdownButtonFormField<String>(

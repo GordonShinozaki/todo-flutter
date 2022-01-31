@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../functions/dateConverter.dart';
+import '../functions/date_converter.dart';
 
 ///////////////////////////////
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key}) : super(key: key);
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -110,7 +110,6 @@ class _MyHomePageState extends State<MyHomePage> {
               "priority": priority,
               "priorityNo": priorityNo,
             };
-            print(mapObj);
             var jsonStr = jsonEncode(mapObj);
             todo.add(jsonStr);
             await prefs.setStringList("todo", todo);
@@ -157,7 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 currentTime: DateTime.now(),
                                 locale: LocaleType.jp);
                           },
-                          icon: Icon(
+                          icon: const Icon(
                               IconData(0xe122, fontFamily: 'MaterialIcons')))),
                 ),
                 DropdownButtonFormField<String>(
@@ -247,16 +246,16 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.all(10),
+      margin: const EdgeInsets.all(10),
       child: Container(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         child: Column(
           children: [
             Row(
               children: [
                 Checkbox(onChanged: _changeState, value: widget.state),
                 Text(widget.label),
-                Spacer(),
+                const Spacer(),
                 IconButton(
                     onPressed: () async {
                       var data = await _showEditInputDialog(context);
@@ -273,7 +272,7 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
                         throw ("Null input");
                       }
                     },
-                    icon: Icon(IconData(0xf67a, fontFamily: 'MaterialIcons')))
+                    icon: const Icon(IconData(0xf67a, fontFamily: 'MaterialIcons')))
               ],
             ),
             Row(
@@ -282,12 +281,12 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
                   "Due Date:" + widget.date,
                   textAlign: TextAlign.center,
                 ),
-                Spacer(),
+                const Spacer(),
                 Chip(
                     backgroundColor: (widget.priority == 'Three（高い）')
                         ? Colors.red
                         : widget.priority == 'Two' ? Colors.amber : Colors.blue,
-                    label: Text(widget.priority, style: TextStyle(color: Colors.white),)
+                    label: Text(widget.priority, style: const TextStyle(color: Colors.white),)
                   ),
               ],
             ),
@@ -333,7 +332,7 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
                                 currentTime: DateTime.now(),
                                 locale: LocaleType.jp);
                           },
-                          icon: Icon(
+                          icon: const Icon(
                               IconData(0xe122, fontFamily: 'MaterialIcons')))),
                 ),
                 DropdownButtonFormField<String>(
