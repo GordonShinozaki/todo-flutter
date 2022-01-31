@@ -3,7 +3,7 @@ import 'package:my_todo/screens/screens.dart';
 export '../screens/bottom_nav.dart';
 
 class BottomNavScreen extends StatefulWidget {
-  const BottomNavScreen({Key? key}) : super(key: key);
+  BottomNavScreen({Key? key}) : super(key: key);
 
   @override
   _BottomNavScreenState createState() => _BottomNavScreenState();
@@ -11,9 +11,10 @@ class BottomNavScreen extends StatefulWidget {
 
 class _BottomNavScreenState extends State<BottomNavScreen> {
   final List _screens = [
-    const MyHomePage(),
-    const MyPriority(),
-    const MyDue(),
+    MyHomePage(),
+    MyPriority(),
+    MyDue(),
+    Scaffold(),
   ];
   int _currentIndex = 0;
   @override
@@ -29,12 +30,12 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         showUnselectedLabels: true,
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.grey,
-        items: [Icons.home, Icons.insert_chart, Icons.event_note]
+        items: [Icons.home, Icons.insert_chart, Icons.event_note, Icons.done]
             .asMap()
             .map((key, value) => MapEntry(
                   key,
                   BottomNavigationBarItem(
-                    label: const Text('').toString(),
+                    label: (key == 0) ? 'Home' : (key == 1) ? 'Priority' : (key == 2) ? 'Due Dates' : 'Done',
                     icon: Container(
                       padding: const EdgeInsets.symmetric(
                           vertical: 6.0, horizontal: 16.0),

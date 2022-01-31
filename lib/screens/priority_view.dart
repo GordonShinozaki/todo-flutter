@@ -8,7 +8,7 @@ import 'home_screen.dart';
 
 ///////////////////////////////
 class MyPriority extends StatefulWidget {
-  const MyPriority({Key? key}) : super(key: key);
+  MyPriority({Key? key}) : super(key: key);
 
   @override
   _MyPriorityState createState() => _MyPriorityState();
@@ -72,7 +72,10 @@ class _MyPriorityState extends State<MyPriority> {
                 // getCards()メソッドの処理が完了すると、ここが呼ばれる。
                 if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
-                } else {
+                } if (snapshot.data!.isEmpty) {
+                    return const Text("Please Add a To-do!",
+                        style: TextStyle(color: Colors.grey));
+                  } else {
                   return ListView.builder(
                       // リストの中身は、snapshot.dataの中に保存されているので、
                       // 取り出して活用する

@@ -8,7 +8,7 @@ import 'home_screen.dart';
 
 ///////////////////////////////
 class MyDue extends StatefulWidget {
-  const MyDue({Key? key}) : super(key: key);
+  MyDue({Key? key}) : super(key: key);
 
   @override
   _MyDueState createState() => _MyDueState();
@@ -49,7 +49,9 @@ class _MyDueState extends State<MyDue> {
         .where((i) => calculateDifference(restoreDate.parse(i.date)) == 0)
         .toList();
     thisWeekCards = cards
-        .where((i) => calculateDifference(restoreDate.parse(i.date)) < 7 && calculateDifference(restoreDate.parse(i.date)) > 0)
+        .where((i) =>
+            calculateDifference(restoreDate.parse(i.date)) < 7 &&
+            calculateDifference(restoreDate.parse(i.date)) > 0)
         .toList();
     return [cards, todayCards, thisWeekCards];
   }
@@ -86,33 +88,45 @@ class _MyDueState extends State<MyDue> {
                 if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else {
-                  return Container(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Column(
-                    children: [
-                      const Text("Today", style: TextStyle(color: Colors.grey)),
-                      ListView.builder(
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      // リストの中身は、snapshot.dataの中に保存されているので、
-                      // 取り出して活用する
-                      itemCount: snapshot.data![1]!.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return snapshot.data![1][index];
-                      }),
-                      const Text("This Week", style: TextStyle(color: Colors.grey)),
-                      ListView.builder(
-                      // リストの中身は、snapshot.dataの中に保存されているので、
-                      // 取り出して活用するss
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      itemCount: snapshot.data![2]!.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return snapshot.data![2][index];
-                      }),
-                      ]
-                    )
-                  );
+                  if (snapshot.data![0]!.length == 0) {
+                    return const Text("Please Add a To-do!",
+                        style: TextStyle(color: Colors.grey));
+                  } else {
+                    return Container(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Column(children: [
+                          const Text("- Today -",
+                              style: TextStyle(color: Colors.grey)),
+                          (snapshot.data![1]!.length > 0)
+                              ? ListView.builder(
+                                  scrollDirection: Axis.vertical,
+                                  shrinkWrap: true,
+                                  // リストの中身は、snapshot.dataの中に保存されているので、
+                                  // 取り出して活用する
+                                  itemCount: snapshot.data![1]!.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return snapshot.data![1][index];
+                                  })
+                              : const Text("Nothing due!",
+                                  style: TextStyle(color: Colors.blue)),
+                          const Text("- This Week -",
+                              style: TextStyle(color: Colors.grey)),
+                          (snapshot.data![1]!.length > 0)
+                              ? ListView.builder(
+                                  // リストの中身は、snapshot.dataの中に保存されているので、
+                                  // 取り出して活用する
+                                  scrollDirection: Axis.vertical,
+                                  shrinkWrap: true,
+                                  itemCount: snapshot.data![2]!.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return snapshot.data![2][index];
+                                  })
+                              : const Text("Nothing due!",
+                                  style: TextStyle(color: Colors.blue)),
+                        ]));
+                  }
                 }
             }
           },

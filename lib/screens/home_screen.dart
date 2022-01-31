@@ -6,7 +6,7 @@ import '../functions/date_converter.dart';
 
 ///////////////////////////////
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+  MyHomePage({Key? key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -73,7 +73,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 // getCards()メソッドの処理が完了すると、ここが呼ばれる。
                 if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
-                } else {
+                } if (snapshot.data!.isEmpty) {
+                    return const Text("Please Add a To-do!",
+                        style: TextStyle(color: Colors.grey));
+                  } else {
                   return ListView.builder(
                       // リストの中身は、snapshot.dataの中に保存されているので、
                       // 取り出して活用する
@@ -298,7 +301,7 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
 
   Future<List<String?>> _showEditInputDialog(BuildContext context) async {
     final List<TextEditingController> _textFieldControllers =
-        List.generate(5, (i) => TextEditingController());
+        List.generate(3, (i) => TextEditingController());
     _textFieldControllers[0].text = widget.label;
     _textFieldControllers[1].text = widget.date;
     return await showDialog(
