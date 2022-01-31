@@ -14,16 +14,16 @@ class TodoCardWidget extends StatefulWidget {
   String hash;
   var state = false;
 
-  TodoCardWidget(
-      {Key? key,
-      required this.label,
-      required this.state,
-      required this.date,
-      required this.priority,
-      required this.priorityNo,
-      this.doneDate = '',
-      required this.hash,})
-      : super(key: key);
+  TodoCardWidget({
+    Key? key,
+    required this.label,
+    required this.state,
+    required this.date,
+    required this.priority,
+    required this.priorityNo,
+    this.doneDate = '',
+    required this.hash,
+  }) : super(key: key);
 
   @override
   _TodoCardWidgetState createState() => _TodoCardWidgetState();
@@ -42,6 +42,9 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
         widget.date = date;
         widget.priority = priority;
       }
+      if (label == null) {
+        widget.label = null;
+      }
     });
     // --- ③ ボタンが押されたタイミング状態を更新し保存する ---
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -50,12 +53,16 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
     for (int i = 0; i < todo.length; i++) {
       var mapObj = jsonDecode(todo[i]);
       if (mapObj["hash"] == widget.hash) {
-        mapObj["state"] = widget.state;
-        mapObj["date"] = widget.date;
-        mapObj["title"] = widget.label;
-        mapObj["priority"] = widget.priority;
-        mapObj["doneDate"] = widget.doneDate;
-        todo[i] = jsonEncode(mapObj);
+        if (widget.label == null) {
+          todo.remove(todo[i]);
+        } else {
+          mapObj["state"] = widget.state;
+          mapObj["date"] = widget.date;
+          mapObj["title"] = widget.label;
+          mapObj["priority"] = widget.priority;
+          mapObj["doneDate"] = widget.doneDate;
+          todo[i] = jsonEncode(mapObj);
+        }
       }
     }
 

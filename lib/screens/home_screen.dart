@@ -34,16 +34,14 @@ class _MyHomePageState extends State<MyHomePage> {
       var priorityNo = mapObj['priorityNo'];
       var hash = mapObj['hash'];
       var state = mapObj['state']; //this is the card done state
-      if (!title.isEmpty) {
-        cards.add(TodoCardWidget(
-          label: title,
-          date: date,
-          priority: priority,
-          priorityNo: priorityNo,
-          state: state,
-          hash: hash,
-        ));
-      }
+      cards.add(TodoCardWidget(
+        label: title,
+        date: date,
+        priority: priority,
+        priorityNo: priorityNo,
+        state: state,
+        hash: hash,
+      ));
     }
     return cards;
   }
