@@ -14,7 +14,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
     const MyHomePage(),
     const MyPriority(),
     const MyDue(),
-    const Scaffold(),
+    const MyDone(),
   ];
   int _currentIndex = 0;
   @override

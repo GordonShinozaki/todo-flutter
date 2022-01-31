@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'package:my_todo/screens/screens.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../functions/date_converter.dart';
-import 'home_screen.dart';
+import '../components/todocard.dart';
 
 ///////////////////////////////
 class MyPriority extends StatefulWidget {
@@ -14,7 +13,7 @@ class MyPriority extends StatefulWidget {
   _MyPriorityState createState() => _MyPriorityState();
 }
 
-class _MyPriorityState extends State<MyHomePage> {
+class _MyPriorityState extends State<MyPriority> {
   @override
   void initState() {
     super.initState();
@@ -33,13 +32,15 @@ class _MyPriorityState extends State<MyHomePage> {
       var priority = mapObj['priority'];
       var priorityNo = mapObj['priorityNo'];
       var state = mapObj['state']; //this is the card done state
-      cards.add(TodoCardWidget(
-        label: title,
-        date: date,
-        priority: priority,
-        state: state,
-        priorityNo: priorityNo,
-      ));
+      if (!state) {
+        cards.add(TodoCardWidget(
+          label: title,
+          date: date,
+          priority: priority,
+          state: state,
+          priorityNo: priorityNo,
+        ));
+      }
     }
     cards.sort(
         (TodoCardWidget a, TodoCardWidget b) => b.priorityNo - a.priorityNo);

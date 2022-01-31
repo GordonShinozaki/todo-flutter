@@ -6,37 +6,28 @@ import '../functions/date_converter.dart';
 import '../components/todocard.dart';
 
 ///////////////////////////////
-class MyDue extends StatefulWidget {
-  const MyDue({Key? key}) : super(key: key);
+class MyDone extends StatefulWidget {
+  const MyDone({Key? key}) : super(key: key);
 
   @override
-  _MyDueState createState() => _MyDueState();
+  _MyDoneState createState() => _MyDoneState();
 }
 
-class _MyDueState extends State<MyDue> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
+class _MyDoneState extends State<MyDone> {
   /// ---- ① 非同期にカードリストを生成する関数 ----
   Future<List<dynamic>> getCards() async {
     var prefs = await SharedPreferences.getInstance();
     List<TodoCardWidget> cards = [];
-    List<TodoCardWidget> todayCards = [];
-    List<TodoCardWidget> thisWeekCards = [];
-    List<TodoCardWidget> futureCards = [];
-    List<TodoCardWidget> overdueCards = [];
     var todo = prefs.getStringList("todo") ?? [];
     for (var jsonStr in todo) {
       // JSON形式の文字列から辞書形式のオブジェクトに変換し、各要素を取り出し
       var mapObj = jsonDecode(jsonStr);
       var title = mapObj['title']; //this is the cardtitle
-      var date = mapObj['date']; // i want a due date
+      var date = mapObj['doneDate']; // i want a due date
       var priority = mapObj['priority'];
       var priorityNo = mapObj['priorityNo'];
       var state = mapObj['state']; //this is the card done state
-      if (!state) {
+      if (state) {
         cards.add(TodoCardWidget(
           label: title,
           date: date,
@@ -44,28 +35,12 @@ class _MyDueState extends State<MyDue> {
           state: state,
           priorityNo: priorityNo,
         ));
+      } else {
+        continue;
       }
     }
-    cards.sort((TodoCardWidget a, TodoCardWidget b) =>
-        restoreDate.parse(a.date).compareTo(restoreDate.parse(b.date)));
-    todayCards = cards
-        .where((i) => calculateDifference(restoreDate.parse(i.date)) == 0)
-        .toList();
-    thisWeekCards = cards
-        .where((i) =>
-            restoreDate.parse(i.date).isAfter(DateTime.now()) &&
-            calculateDifference(restoreDate.parse(i.date)) < 7 &&
-            calculateDifference(restoreDate.parse(i.date)) > 0)
-        .toList();
-    futureCards = cards
-        .where((i) =>
-            restoreDate.parse(i.date).isAfter(DateTime.now()) &&
-            calculateDifference(restoreDate.parse(i.date)) > 7)
-        .toList();
-    overdueCards = cards
-        .where((i) => restoreDate.parse(i.date).isBefore(DateTime.now()))
-        .toList();
-    return [cards, todayCards, thisWeekCards, futureCards, overdueCards];
+    List<TodoCardWidget> doneCards = cards.where((i) => i.state).toList();
+    return doneCards;
   }
 
   /// ------------------------------------
@@ -73,7 +48,7 @@ class _MyDueState extends State<MyDue> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("What's Due Soon?"),
+        title: const Text("What's Done So Far"),
         actions: [
           IconButton(
               onPressed: () {
@@ -96,67 +71,20 @@ class _MyDueState extends State<MyDue> {
               case ConnectionState.waiting:
                 return const Text('Loading...');
               default:
-                // getCards()メソッドの処理が完了すると、ここが呼ばれる。
+                // getCards()メソッドの処理が完了すると、ここが呼ばれる
                 if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
-                } else if (snapshot.data![0].isEmpty) {
-                  return const Text("Please add a todo!",
+                } else if (snapshot.data!.isEmpty) {
+                  return const Text("Please start completing your tasks!",
                       style: TextStyle(color: Colors.grey));
                 } else {
-                  return Container(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Column(children: [
-                        const Text("Today",
-                            style: TextStyle(color: Colors.grey)),
-                        (snapshot.data![1].length > 0)
-                            ? ListView.builder(
-                                scrollDirection: Axis.vertical,
-                                shrinkWrap: true,
-                                // リストの中身は、snapshot.dataの中に保存されているので、
-                                // 取り出して活用する
-                                itemCount: snapshot.data![1]!.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return snapshot.data![1][index];
-                                })
-                            : const Text("You are in the clear",
-                                style: TextStyle(color: Colors.blue)),
-                        const Text("This Week",
-                            style: TextStyle(color: Colors.grey)),
-                        (snapshot.data![2].length > 0)
-                            ? ListView.builder(
-                                // リストの中身は、snapshot.dataの中に保存されているので、
-                                // 取り出して活用するss
-                                scrollDirection: Axis.vertical,
-                                shrinkWrap: true,
-                                itemCount: snapshot.data![2]!.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return snapshot.data![2][index];
-                                })
-                            : const Text("You are in the clear",
-                                style: TextStyle(color: Colors.blue)),
-                        const Text("-These aren't due anytime soon-",
-                            style: TextStyle(color: Colors.grey)),
-                        ListView.builder(
-                            // リストの中身は、snapshot.dataの中に保存されているので、
-                            // 取り出して活用するss
-                            scrollDirection: Axis.vertical,
-                            shrinkWrap: true,
-                            itemCount: snapshot.data![3]!.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return snapshot.data![3][index];
-                            }),
-                        const Text("-Overdue!!!!-",
-                            style: TextStyle(color: Colors.red)),
-                        ListView.builder(
-                            // リストの中身は、snapshot.dataの中に保存されているので、
-                            // 取り出して活用するss
-                            scrollDirection: Axis.vertical,
-                            shrinkWrap: true,
-                            itemCount: snapshot.data![4]!.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return snapshot.data![4][index];
-                            }),
-                      ]));
+                  return ListView.builder(
+                      // リストの中身は、snapshot.dataの中に保存されているので、
+                      // 取り出して活用する
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return snapshot.data![index];
+                      });
                 }
             }
           },
