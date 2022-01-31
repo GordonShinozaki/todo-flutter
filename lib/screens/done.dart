@@ -7,18 +7,14 @@ import '../functions/date_converter.dart';
 import 'home_screen.dart';
 
 ///////////////////////////////
-class MyPriority extends StatefulWidget {
-  const MyPriority({Key? key}) : super(key: key);
+class MyDone extends StatefulWidget {
+  const MyDone({Key? key}) : super(key: key);
 
   @override
-  _MyPriorityState createState() => _MyPriorityState();
+  _MyDoneState createState() => _MyDoneState();
 }
 
-class _MyPriorityState extends State<MyPriority> {
-  @override
-  void initState() {
-    super.initState();
-  }
+class _MyDoneState extends State<MyDone> {
 
   /// ---- ① 非同期にカードリストを生成する関数 ----
   Future<List<dynamic>> getCards() async {
@@ -29,21 +25,22 @@ class _MyPriorityState extends State<MyPriority> {
       // JSON形式の文字列から辞書形式のオブジェクトに変換し、各要素を取り出し
       var mapObj = jsonDecode(jsonStr);
       var title = mapObj['title']; //this is the cardtitle
-      var date = mapObj['date']; // i want a due date
+      var date = mapObj['doneDate']; // i want a due date
       var priority = mapObj['priority'];
       var priorityNo = mapObj['priorityNo'];
       var state = mapObj['state']; //this is the card done state
-      cards.add(TodoCardWidget(
-        label: title,
-        date: date,
-        priority: priority,
-        state: state,
-        priorityNo: priorityNo,
-      ));
+      if (state) {
+        cards.add(TodoCardWidget(
+          label: title,
+          date: date,
+          priority: priority,
+          state: state,
+          priorityNo: priorityNo,
+        ));
+      }
     }
-    cards.sort(
-        (TodoCardWidget a, TodoCardWidget b) => b.priorityNo - a.priorityNo);
-    return cards;
+    List<TodoCardWidget> doneCards = cards.where((i) => i.state).toList();
+    return doneCards;
   }
 
   /// ------------------------------------
@@ -51,7 +48,7 @@ class _MyPriorityState extends State<MyPriority> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Priority Screen!"),
+        title: const Text("What's Done So Far"),
         actions: [
           IconButton(
               onPressed: () {
@@ -74,11 +71,11 @@ class _MyPriorityState extends State<MyPriority> {
               case ConnectionState.waiting:
                 return const Text('Loading...');
               default:
-                // getCards()メソッドの処理が完了すると、ここが呼ばれる。
+                // getCards()メソッドの処理が完了すると、ここが呼ばれる
                 if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}');
                 } else if (snapshot.data!.isEmpty) {
-                  return const Text("Please add a todo!",
+                  return const Text("Please start completing your tasks!",
                       style: TextStyle(color: Colors.grey));
                 } else {
                   return ListView.builder(

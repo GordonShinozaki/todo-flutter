@@ -14,7 +14,7 @@ class MyDue extends StatefulWidget {
   _MyDueState createState() => _MyDueState();
 }
 
-class _MyDueState extends State<MyHomePage> {
+class _MyDueState extends State<MyDue> {
   @override
   void initState() {
     super.initState();
@@ -37,13 +37,15 @@ class _MyDueState extends State<MyHomePage> {
       var priority = mapObj['priority'];
       var priorityNo = mapObj['priorityNo'];
       var state = mapObj['state']; //this is the card done state
-      cards.add(TodoCardWidget(
-        label: title,
-        date: date,
-        priority: priority,
-        state: state,
-        priorityNo: priorityNo,
-      ));
+      if (!state) {
+        cards.add(TodoCardWidget(
+          label: title,
+          date: date,
+          priority: priority,
+          state: state,
+          priorityNo: priorityNo,
+        ));
+      }
     }
     cards.sort((TodoCardWidget a, TodoCardWidget b) =>
         restoreDate.parse(a.date).compareTo(restoreDate.parse(b.date)));
@@ -52,19 +54,18 @@ class _MyDueState extends State<MyHomePage> {
         .toList();
     thisWeekCards = cards
         .where((i) =>
-          restoreDate.parse(i.date).isAfter(DateTime.now()) &&
-          calculateDifference(restoreDate.parse(i.date)) < 7 &&
-          calculateDifference(restoreDate.parse(i.date)) > 0)
+            restoreDate.parse(i.date).isAfter(DateTime.now()) &&
+            calculateDifference(restoreDate.parse(i.date)) < 7 &&
+            calculateDifference(restoreDate.parse(i.date)) > 0)
         .toList();
     futureCards = cards
         .where((i) =>
-          restoreDate.parse(i.date).isAfter(DateTime.now()) &&
-          calculateDifference(restoreDate.parse(i.date)) > 7)
+            restoreDate.parse(i.date).isAfter(DateTime.now()) &&
+            calculateDifference(restoreDate.parse(i.date)) > 7)
         .toList();
     overdueCards = cards
-      .where((i) =>
-        restoreDate.parse(i.date).isBefore(DateTime.now()))
-      .toList();   
+        .where((i) => restoreDate.parse(i.date).isBefore(DateTime.now()))
+        .toList();
     return [cards, todayCards, thisWeekCards, futureCards, overdueCards];
   }
 
@@ -108,32 +109,32 @@ class _MyDueState extends State<MyHomePage> {
                       child: Column(children: [
                         const Text("Today",
                             style: TextStyle(color: Colors.grey)),
-                        (snapshot.data![1].length > 0) ?
-                        ListView.builder(
-                            scrollDirection: Axis.vertical,
-                            shrinkWrap: true,
-                            // リストの中身は、snapshot.dataの中に保存されているので、
-                            // 取り出して活用する
-                            itemCount: snapshot.data![1]!.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return snapshot.data![1][index];
-                            }) 
+                        (snapshot.data![1].length > 0)
+                            ? ListView.builder(
+                                scrollDirection: Axis.vertical,
+                                shrinkWrap: true,
+                                // リストの中身は、snapshot.dataの中に保存されているので、
+                                // 取り出して活用する
+                                itemCount: snapshot.data![1]!.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return snapshot.data![1][index];
+                                })
                             : const Text("You are in the clear",
-                            style: TextStyle(color: Colors.blue)),
+                                style: TextStyle(color: Colors.blue)),
                         const Text("This Week",
                             style: TextStyle(color: Colors.grey)),
-                        (snapshot.data![2].length > 0) ?
-                        ListView.builder(
-                            // リストの中身は、snapshot.dataの中に保存されているので、
-                            // 取り出して活用するss
-                            scrollDirection: Axis.vertical,
-                            shrinkWrap: true,
-                            itemCount: snapshot.data![2]!.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return snapshot.data![2][index];
-                            }) 
+                        (snapshot.data![2].length > 0)
+                            ? ListView.builder(
+                                // リストの中身は、snapshot.dataの中に保存されているので、
+                                // 取り出して活用するss
+                                scrollDirection: Axis.vertical,
+                                shrinkWrap: true,
+                                itemCount: snapshot.data![2]!.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return snapshot.data![2][index];
+                                })
                             : const Text("You are in the clear",
-                            style: TextStyle(color: Colors.blue)),
+                                style: TextStyle(color: Colors.blue)),
                         const Text("-These aren't due anytime soon-",
                             style: TextStyle(color: Colors.grey)),
                         ListView.builder(
@@ -145,8 +146,8 @@ class _MyDueState extends State<MyHomePage> {
                             itemBuilder: (BuildContext context, int index) {
                               return snapshot.data![3][index];
                             }),
-                          const Text("-Overdue!!!!-",
-                          style: TextStyle(color: Colors.red)),
+                        const Text("-Overdue!!!!-",
+                            style: TextStyle(color: Colors.red)),
                         ListView.builder(
                             // リストの中身は、snapshot.dataの中に保存されているので、
                             // 取り出して活用するss

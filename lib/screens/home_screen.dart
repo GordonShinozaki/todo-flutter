@@ -128,6 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<List<String?>> _showTextInputDialog(BuildContext context) async {
     final List<TextEditingController> _textFieldControllers =
         List.generate(3, (i) => TextEditingController());
+    _textFieldControllers[2].text = 'One (低い）';
     return await showDialog(
         context: context,
         builder: (context) {
@@ -208,6 +209,7 @@ class TodoCardWidget extends StatefulWidget {
   String date;
   String priority;
   int priorityNo;
+  String? doneDate;
   var state = false;
 
   TodoCardWidget({
@@ -217,6 +219,7 @@ class TodoCardWidget extends StatefulWidget {
     required this.date,
     required this.priority,
     required this.priorityNo,
+    this.doneDate,
   }) : super(key: key);
 
   @override
@@ -228,6 +231,9 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
       {String? label, String? date, String? priority}) async {
     setState(() {
       widget.state = value ?? false;
+      widget.doneDate = widget.state
+          ? formatDate(DateTime.now())
+          : formatDate(DateTime.now());
       if (label != null && date != null && priority != null) {
         widget.label = label;
         widget.date = date;
@@ -273,8 +279,10 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
                       var label = data[0];
                       var date = data[1];
                       var priority = data[2];
-                      _changeState(widget.state, label: label.toString(),
-                          date: date.toString(), priority: priority.toString());
+                      _changeState(widget.state,
+                          label: label.toString(),
+                          date: date.toString(),
+                          priority: priority.toString());
                     },
                     icon: const Icon(
                         IconData(0xf67a, fontFamily: 'MaterialIcons')))
