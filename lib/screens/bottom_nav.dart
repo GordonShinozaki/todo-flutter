@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_todo/screens/due_date.dart';
+import 'package:my_todo/screens/priorityView.dart';
 import 'package:my_todo/screens/home_screen.dart';
 export '../screens/bottom_nav.dart';
 
@@ -11,7 +11,7 @@ class BottomNavScreen extends StatefulWidget {
 class _BottomNavScreenState extends State<BottomNavScreen> {
   final List _screens = [
     MyHomePage(),
-    MyDueDate(),
+    MyPriority(),
     Scaffold(),
   ];
   int _currentIndex = 0;

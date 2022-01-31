@@ -7,14 +7,14 @@ import '../functions/dateConverter.dart';
 import 'home_screen.dart';
 
 ///////////////////////////////
-class MyDueDate extends StatefulWidget {
-  MyDueDate({Key? key}) : super(key: key);
+class MyDue extends StatefulWidget {
+  MyDue({Key? key}) : super(key: key);
 
   @override
-  _MyDueDateState createState() => _MyDueDateState();
+  _MyDueState createState() => _MyDueState();
 }
 
-class _MyDueDateState extends State<MyDueDate> {
+class _MyDueState extends State<MyDue> {
   @override
   void initState() {
     super.initState();
@@ -37,7 +37,8 @@ class _MyDueDateState extends State<MyDueDate> {
           label: title, date: date, priority: priority, state: state, priorityNo: priorityNo,));
     }
     cards.sort(
-        (TodoCardWidget a, TodoCardWidget b) => b.priorityNo - a.priorityNo);
+        (TodoCardWidget a, TodoCardWidget b) => DateTime.parse(a.date).compareTo(DateTime.parse(b.date))
+        );
     return cards;
   }
 
