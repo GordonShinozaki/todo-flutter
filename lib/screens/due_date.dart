@@ -52,7 +52,7 @@ class _MyDueState extends State<MyDue> {
     cards.sort((TodoCardWidget a, TodoCardWidget b) =>
         restoreDate.parse(a.date).compareTo(restoreDate.parse(b.date)));
     todayCards = cards
-        .where((i) => calculateDifference(restoreDate.parse(i.date)) == 0)
+        .where((i) => restoreDate.parse(i.date).isAfter (DateTime.now()) && calculateDifference(restoreDate.parse(i.date)) == 0)
         .toList();
     thisWeekCards = cards
         .where((i) =>

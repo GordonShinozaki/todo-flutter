@@ -42,9 +42,9 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
         widget.date = date;
         widget.priority = priority;
       }
-      if (label == null) {
-        widget.label = null;
-      }
+      // if (label == null) {
+      //   widget.label = null;
+      // }
     });
     // --- ③ ボタンが押されたタイミング状態を更新し保存する ---
     SharedPreferences prefs = await SharedPreferences.getInstance();
