@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../functions/date_converter.dart';
+import '../functions/hasher.dart';
 import '../components/todocard.dart';
 
 ///////////////////////////////
@@ -29,15 +30,19 @@ class _MyHomePageState extends State<MyHomePage> {
       var mapObj = jsonDecode(jsonStr);
       var title = mapObj['title']; //this is the cardtitle
       var date = mapObj['date']; // i want a due date
+      var doneDate = mapObj['doneDate'];
       var priority = mapObj['priority'];
       var priorityNo = mapObj['priorityNo'];
+      var hash = mapObj['hash'];
       var state = mapObj['state']; //this is the card done state
       cards.add(TodoCardWidget(
+        doneDate: doneDate,
         label: title,
         date: date,
         priority: priority,
         priorityNo: priorityNo,
         state: state,
+        hash: hash,
       ));
     }
     return cards;
@@ -48,7 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("My TODO"),
+        title: const Text("My Todo"),
         actions: [
           IconButton(
               onPressed: () {
@@ -114,6 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
               "priority": priority,
               "priorityNo": priorityNo,
               "dateDone": '',
+              "hash": getRandString(10),
             };
             var jsonStr = jsonEncode(mapObj);
             todo.add(jsonStr);

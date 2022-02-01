@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:my_todo/functions/hasher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../functions/date_converter.dart';
 import '../components/todocard.dart';
@@ -34,22 +35,26 @@ class _MyDueState extends State<MyDue> {
       var title = mapObj['title']; //this is the cardtitle
       var date = mapObj['date']; // i want a due date
       var priority = mapObj['priority'];
+      var doneDate = mapObj['doneDate'];
       var priorityNo = mapObj['priorityNo'];
+      var hash = mapObj['hash'];
       var state = mapObj['state']; //this is the card done state
       if (!state) {
         cards.add(TodoCardWidget(
+          doneDate: doneDate,
           label: title,
           date: date,
           priority: priority,
           state: state,
           priorityNo: priorityNo,
+          hash: hash,
         ));
       }
     }
     cards.sort((TodoCardWidget a, TodoCardWidget b) =>
         restoreDate.parse(a.date).compareTo(restoreDate.parse(b.date)));
     todayCards = cards
-        .where((i) => calculateDifference(restoreDate.parse(i.date)) == 0)
+        .where((i) => restoreDate.parse(i.date).isAfter (DateTime.now()) && calculateDifference(restoreDate.parse(i.date)) == 0)
         .toList();
     thisWeekCards = cards
         .where((i) =>
@@ -185,6 +190,7 @@ class _MyDueState extends State<MyDue> {
               "state": false,
               "priority": priority,
               "priorityNo": priorityNo,
+              "hash": getRandString(10),
             };
             var jsonStr = jsonEncode(mapObj);
             todo.add(jsonStr);
