@@ -28,8 +28,10 @@ class _MyDoneState extends State<MyDone> {
       var priorityNo = mapObj['priorityNo'];
       var state = mapObj['state']; //this is the card done state
       var hash = mapObj['hash'];
+      var doneDate = mapObj['doneDate'];
       if (state) {
         cards.add(TodoCardWidget(
+          doneDate: doneDate,
           label: title,
           date: date,
           priority: priority,

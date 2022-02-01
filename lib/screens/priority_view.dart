@@ -30,12 +30,14 @@ class _MyPriorityState extends State<MyPriority> {
       var mapObj = jsonDecode(jsonStr);
       var title = mapObj['title']; //this is the cardtitle
       var date = mapObj['date']; // i want a due date
+      var doneDate = mapObj['doneDate'];
       var priority = mapObj['priority'];
       var priorityNo = mapObj['priorityNo'];
       var hash = mapObj['hash'];
       var state = mapObj['state']; //this is the card done state
       if (!state) {
         cards.add(TodoCardWidget(
+          doneDate: doneDate,
           label: title,
           date: date,
           priority: priority,

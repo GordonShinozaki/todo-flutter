@@ -35,11 +35,13 @@ class _MyDueState extends State<MyDue> {
       var title = mapObj['title']; //this is the cardtitle
       var date = mapObj['date']; // i want a due date
       var priority = mapObj['priority'];
+      var doneDate = mapObj['doneDate'];
       var priorityNo = mapObj['priorityNo'];
       var hash = mapObj['hash'];
       var state = mapObj['state']; //this is the card done state
       if (!state) {
         cards.add(TodoCardWidget(
+          doneDate: doneDate,
           label: title,
           date: date,
           priority: priority,

@@ -21,7 +21,7 @@ class TodoCardWidget extends StatefulWidget {
     required this.date,
     required this.priority,
     required this.priorityNo,
-    this.doneDate = '',
+    this.doneDate = '202001',
     required this.hash,
   }) : super(key: key);
 
@@ -42,9 +42,6 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
         widget.date = date;
         widget.priority = priority;
       }
-      // if (label == null) {
-      //   widget.label = null;
-      // }
     });
     // --- ③ ボタンが押されたタイミング状態を更新し保存する ---
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -53,7 +50,7 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
     for (int i = 0; i < todo.length; i++) {
       var mapObj = jsonDecode(todo[i]);
       if (mapObj["hash"] == widget.hash) {
-        if (widget.label == null) {
+        if (widget.label == "will be removed") {
           todo.remove(todo[i]);
         } else {
           mapObj["state"] = widget.state;
@@ -86,7 +83,7 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
                 const Spacer(),
                 IconButton(
                     onPressed: () {
-                      _changeState(widget.state, label: null);
+                      _changeState(widget.state, label: "will be removed", date: widget.date, priority: widget.priority);
                     },
                     icon: const Icon(Icons.delete)),
                 IconButton(
@@ -108,7 +105,7 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
               children: [
                 Text(
                   (widget.state)
-                      ? "Done Date: " + widget.date
+                      ? "Done Date: " + widget.doneDate
                       : "Due Date: " + widget.date,
                   textAlign: TextAlign.center,
                 ),
