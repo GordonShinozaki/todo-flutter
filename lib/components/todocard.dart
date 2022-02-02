@@ -169,7 +169,7 @@ class _TodoCardWidgetState extends State<TodoCardWidget> {
                               IconData(0xe122, fontFamily: 'MaterialIcons')))),
                 ),
                 DropdownButtonFormField<String>(
-                  value: 'One (低い）',
+                  value: _textFieldControllers[2].text,
                   icon: const Icon(Icons.arrow_downward),
                   elevation: 16,
                   style: const TextStyle(color: Colors.deepPurple),

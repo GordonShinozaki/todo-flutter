@@ -54,7 +54,8 @@ class _MyDueState extends State<MyDue> {
     cards.sort((TodoCardWidget a, TodoCardWidget b) =>
         restoreDate.parse(a.date).compareTo(restoreDate.parse(b.date)));
     todayCards = cards
-        .where((i) => restoreDate.parse(i.date).isAfter (DateTime.now()) && calculateDifference(restoreDate.parse(i.date)) == 0)
+        .where((i) =>
+            calculateDifference(restoreDate.parse(i.date)) == 0)
         .toList();
     thisWeekCards = cards
         .where((i) =>
@@ -68,7 +69,7 @@ class _MyDueState extends State<MyDue> {
             calculateDifference(restoreDate.parse(i.date)) > 7)
         .toList();
     overdueCards = cards
-        .where((i) => restoreDate.parse(i.date).isBefore(DateTime.now()))
+        .where((i) => restoreDate.parse(i.date).add(Duration(days:1)).isBefore(DateTime.now()))
         .toList();
     return [cards, todayCards, thisWeekCards, futureCards, overdueCards];
   }
@@ -110,7 +111,8 @@ class _MyDueState extends State<MyDue> {
                 } else {
                   return Container(
                       padding: const EdgeInsets.all(10.0),
-                      child: Column(children: [
+                      child: SingleChildScrollView(
+                          child: Column(children: [
                         const Text("Today",
                             style: TextStyle(color: Colors.grey)),
                         (snapshot.data![1].length > 0)
@@ -161,7 +163,7 @@ class _MyDueState extends State<MyDue> {
                             itemBuilder: (BuildContext context, int index) {
                               return snapshot.data![4][index];
                             }),
-                      ]));
+                      ])));
                 }
             }
           },
