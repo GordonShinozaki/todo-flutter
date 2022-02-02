@@ -122,6 +122,7 @@ class _MyPriorityState extends State<MyPriority> {
               "state": false,
               "priority": priority,
               "priorityNo": priorityNo,
+              "doneDate": '',
               "hash": getRandString(10),
             };
             var jsonStr = jsonEncode(mapObj);

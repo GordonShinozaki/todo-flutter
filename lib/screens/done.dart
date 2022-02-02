@@ -116,6 +116,7 @@ class _MyDoneState extends State<MyDone> {
               "date": date,
               "state": false,
               "priority": priority,
+              "doneDate": '',
               "priorityNo": priorityNo,
             };
             var jsonStr = jsonEncode(mapObj);

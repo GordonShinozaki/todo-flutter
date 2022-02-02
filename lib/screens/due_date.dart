@@ -54,8 +54,7 @@ class _MyDueState extends State<MyDue> {
     cards.sort((TodoCardWidget a, TodoCardWidget b) =>
         restoreDate.parse(a.date).compareTo(restoreDate.parse(b.date)));
     todayCards = cards
-        .where((i) =>
-            calculateDifference(restoreDate.parse(i.date)) == 0)
+        .where((i) => calculateDifference(restoreDate.parse(i.date)) == 0)
         .toList();
     thisWeekCards = cards
         .where((i) =>
@@ -69,7 +68,10 @@ class _MyDueState extends State<MyDue> {
             calculateDifference(restoreDate.parse(i.date)) > 7)
         .toList();
     overdueCards = cards
-        .where((i) => restoreDate.parse(i.date).add(Duration(days:1)).isBefore(DateTime.now()))
+        .where((i) => restoreDate
+            .parse(i.date)
+            .add(const Duration(days: 1))
+            .isBefore(DateTime.now()))
         .toList();
     return [cards, todayCards, thisWeekCards, futureCards, overdueCards];
   }
@@ -192,6 +194,7 @@ class _MyDueState extends State<MyDue> {
               "state": false,
               "priority": priority,
               "priorityNo": priorityNo,
+              "doneDate": '',
               "hash": getRandString(10),
             };
             var jsonStr = jsonEncode(mapObj);
@@ -209,6 +212,7 @@ class _MyDueState extends State<MyDue> {
   Future<List<String?>> _showTextInputDialog(BuildContext context) async {
     final List<TextEditingController> _textFieldControllers =
         List.generate(3, (i) => TextEditingController());
+    _textFieldControllers[2].text = 'One (低い）';
     return await showDialog(
         context: context,
         builder: (context) {
@@ -244,7 +248,7 @@ class _MyDueState extends State<MyDue> {
                               IconData(0xe122, fontFamily: 'MaterialIcons')))),
                 ),
                 DropdownButtonFormField<String>(
-                  value: 'One (低い）',
+                  value: _textFieldControllers[2].text,
                   icon: const Icon(Icons.arrow_downward),
                   elevation: 16,
                   style: const TextStyle(color: Colors.blue),

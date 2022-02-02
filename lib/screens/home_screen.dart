@@ -26,7 +26,6 @@ class _MyHomePageState extends State<MyHomePage> {
     List<TodoCardWidget> cards = [];
     var todo = prefs.getStringList("todo") ?? [];
     for (var jsonStr in todo) {
-      print(jsonStr);
       // JSON形式の文字列から辞書形式のオブジェクトに変換し、各要素を取り出し
       var mapObj = jsonDecode(jsonStr);
       var title = mapObj['title']; //this is the cardtitle
